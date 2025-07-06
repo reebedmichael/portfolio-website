@@ -14,7 +14,10 @@ export const useSkills = () => {
         const data = await supabaseQueries.getSkills();
         setSkills(data);
       } catch (err) {
-        console.error('Error fetching skills data:', err);
+        // Production-safe error handling
+        if (import.meta.env.DEV) {
+          console.error('Error fetching skills data:', err);
+        }
         setError(err.message);
       } finally {
         setLoading(false);

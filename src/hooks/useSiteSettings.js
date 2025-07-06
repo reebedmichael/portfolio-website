@@ -14,7 +14,10 @@ export const useSiteSettings = () => {
         const data = await supabaseQueries.getSiteSettings();
         setSiteSettings(data);
       } catch (err) {
-        console.error('Error fetching site settings:', err);
+        // Production-safe error handling
+        if (import.meta.env.DEV) {
+          console.error('Error fetching site settings:', err);
+        }
         setError(err.message);
       } finally {
         setLoading(false);

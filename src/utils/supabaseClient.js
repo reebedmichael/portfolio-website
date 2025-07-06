@@ -4,10 +4,22 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables. Please check your .env file.');
+  // Silent fail in production - environment variables should be set
+  if (import.meta.env.DEV) {
+    console.warn('Missing Supabase environment variables. Please check your .env file.');
+  }
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Production-safe error logging
+const logError = (context, error) => {
+  if (import.meta.env.DEV) {
+    console.error(`${context}:`, error);
+  }
+  // In production, you might want to send to an error tracking service
+  // but don't expose sensitive details in console
+};
 
 // Query functions for different data types
 export const supabaseQueries = {
@@ -19,7 +31,7 @@ export const supabaseQueries = {
       .single();
     
     if (error) {
-      console.error('Error fetching about data:', error);
+      logError('Error fetching about data', error);
       return null;
     }
     return data;
@@ -34,7 +46,7 @@ export const supabaseQueries = {
       .order('proficiency', { ascending: false });
     
     if (error) {
-      console.error('Error fetching skills data:', error);
+      logError('Error fetching skills data', error);
       return [];
     }
     
@@ -59,7 +71,7 @@ export const supabaseQueries = {
       .order('featured', { ascending: false });
     
     if (error) {
-      console.error('Error fetching projects data:', error);
+      logError('Error fetching projects data', error);
       return [];
     }
     return data;
@@ -73,7 +85,7 @@ export const supabaseQueries = {
       .order('start_year', { ascending: false });
     
     if (error) {
-      console.error('Error fetching experience data:', error);
+      logError('Error fetching experience data', error);
       return [];
     }
     return data;
@@ -87,7 +99,7 @@ export const supabaseQueries = {
       .single();
     
     if (error) {
-      console.error('Error fetching site settings:', error);
+      logError('Error fetching site settings', error);
       return null;
     }
     return data;
@@ -106,7 +118,7 @@ export const supabaseQueries = {
       }]);
     
     if (error) {
-      console.error('Error submitting contact message:', error);
+      logError('Error submitting contact message', error);
       throw error;
     }
     return data;
@@ -126,7 +138,7 @@ export const supabaseQueries = {
       });
     
     if (error) {
-      console.error('Error tracking download:', error);
+      logError('Error tracking download', error);
     }
     return data;
   },
@@ -140,7 +152,7 @@ export const supabaseQueries = {
       .order('featured', { ascending: false });
     
     if (error) {
-      console.error('Error fetching FlutterFlow projects data:', error);
+      logError('Error fetching FlutterFlow projects data', error);
       return [];
     }
     return data;

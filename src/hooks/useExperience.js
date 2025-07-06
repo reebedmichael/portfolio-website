@@ -14,7 +14,10 @@ export const useExperience = () => {
         const data = await supabaseQueries.getExperience();
         setExperience(data);
       } catch (err) {
-        console.error('Error fetching experience data:', err);
+        // Production-safe error handling
+        if (import.meta.env.DEV) {
+          console.error('Error fetching experience data:', err);
+        }
         setError(err.message);
       } finally {
         setLoading(false);

@@ -94,8 +94,12 @@ export default function ContactForm() {
       }, 5000);
 
     } catch (error) {
-      console.error('Contact form error:', error);
+      // Production-safe error handling
+      if (import.meta.env.DEV) {
+        console.error('Contact form error:', error);
+      }
       setSubmitStatus('error');
+      setErrors({});
       
       // Reset error message after 5 seconds
       setTimeout(() => {

@@ -14,7 +14,10 @@ export const useProjects = () => {
         const data = await supabaseQueries.getProjects();
         setProjects(data);
       } catch (err) {
-        console.error('Error fetching projects data:', err);
+        // Production-safe error handling
+        if (import.meta.env.DEV) {
+          console.error('Error fetching projects data:', err);
+        }
         setError(err.message);
       } finally {
         setLoading(false);

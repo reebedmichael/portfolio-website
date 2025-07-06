@@ -14,7 +14,10 @@ export const useAbout = () => {
         const data = await supabaseQueries.getAbout();
         setAbout(data);
       } catch (err) {
-        console.error('Error fetching about data:', err);
+        // Production-safe error handling
+        if (import.meta.env.DEV) {
+          console.error('Error fetching about data:', err);
+        }
         setError(err.message);
       } finally {
         setLoading(false);

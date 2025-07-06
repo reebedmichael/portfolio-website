@@ -8,7 +8,7 @@ const EnhancedParticleBackground = () => {
   }, []);
 
   const particlesLoaded = useCallback(async (container) => {
-    console.log('Particles loaded:', container);
+    // Particles loaded successfully
   }, []);
 
   return (

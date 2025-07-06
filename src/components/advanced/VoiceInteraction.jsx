@@ -126,7 +126,10 @@ const VoiceInteraction = () => {
       };
       
       recognitionInstance.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+        // Production-safe error handling
+        if (import.meta.env.DEV) {
+          console.error('Speech recognition error:', event.error);
+        }
         setIsListening(false);
         setIsProcessing(false);
       };
