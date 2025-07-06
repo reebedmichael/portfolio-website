@@ -7,9 +7,12 @@ import About from './components/About';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
 import Projects from './pages/Projects';
+import FlutterFlow from './pages/FlutterFlow';
+import FlutterFlowHighlight from './components/FlutterFlowHighlight';
 import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
 import ParticleBackground from './components/ParticleBackground';
+import { useSiteSettings } from './hooks/useSiteSettings';
 
 // Advanced Components
 import AIChatWidget from './components/advanced/AIChatWidget';
@@ -22,9 +25,31 @@ import VoiceInteraction from './components/advanced/VoiceInteraction';
 import EnhancedParticleBackground from './components/advanced/EnhancedParticleBackground';
 
 export default function App() {
+  const { siteSettings } = useSiteSettings();
   const [dark, setDark] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedFeatures, setShowAdvancedFeatures] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home');
+
+  // Handle hash-based routing
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      setCurrentPage(hash || 'home');
+      
+      // Scroll to top when navigating to FlutterFlow page
+      if (hash === 'flutterflow') {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    // Set initial page
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Initialize theme from localStorage or system preference
   useEffect(() => {
@@ -45,6 +70,18 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [dark]);
+
+  // Update document title
+  useEffect(() => {
+    if (siteSettings?.site_title) {
+      document.title = siteSettings.site_title;
+    }
+  }, [siteSettings]);
+
+  // Ensure page starts at top when loading
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Simulate loading
   useEffect(() => {
@@ -102,14 +139,23 @@ export default function App() {
 
       {/* Main Content */}
       <main className="relative">
-        {/* Hero Section */}
-        <Hero />
+        {currentPage === 'flutterflow' ? (
+          <FlutterFlow />
+        ) : (
+          <>
+            {/* Hero Section */}
+            <Hero />
 
-        {/* About Section */}
+                    {/* About Section */}
         <section id="about" className="py-20 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <About />
           </div>
+        </section>
+
+        {/* FlutterFlow Highlight Section */}
+        <section id="flutterflow-highlight" className="py-20 relative">
+          <FlutterFlowHighlight />
         </section>
 
         {/* Skills Section */}
@@ -139,8 +185,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* Contact Section */}
-        <ContactForm />
+            {/* Contact Section */}
+            <ContactForm />
+          </>
+        )}
       </main>
 
       {/* Footer */}

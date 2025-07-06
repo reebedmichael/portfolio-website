@@ -13,6 +13,8 @@ import {
   Star,
   Eye
 } from 'lucide-react';
+import { useProjects } from '../hooks/useProjects';
+import { ProjectCardSkeleton } from '../components/LoadingSkeleton';
 
 const projects = [
   {
@@ -133,7 +135,7 @@ const ProjectCard = ({ project, onClick }) => {
       {/* Project Image */}
       <div className="relative mb-6 overflow-hidden rounded-xl">
         <img
-          src={project.image}
+          src={project.cover_image_url || '/placeholder.png'}
           alt={project.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -158,7 +160,7 @@ const ProjectCard = ({ project, onClick }) => {
 
         {/* Technologies */}
         <div className="flex flex-wrap gap-2">
-          {project.technologies.slice(0, 3).map((tech) => (
+          {project.tech_stack?.slice(0, 3).map((tech) => (
             <span
               key={tech}
               className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
@@ -166,9 +168,9 @@ const ProjectCard = ({ project, onClick }) => {
               {tech}
             </span>
           ))}
-          {project.technologies.length > 3 && (
+          {project.tech_stack && project.tech_stack.length > 3 && (
             <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
-              +{project.technologies.length - 3} more
+              +{project.tech_stack.length - 3} more
             </span>
           )}
         </div>
@@ -180,43 +182,43 @@ const ProjectCard = ({ project, onClick }) => {
               <Calendar className="w-4 h-4" />
               <span>{project.year}</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <Users className="w-4 h-4" />
-              <span>{project.team}</span>
-            </div>
           </div>
           <div className="flex items-center space-x-1">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span>{project.stars}</span>
+            <span>{project.featured ? 'Featured' : 'Project'}</span>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-3 pt-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(project.demo, '_blank');
-            }}
-            className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Eye className="w-4 h-4" />
-            <span>Demo</span>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(project.github, '_blank');
-            }}
-            className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          >
-            <Github className="w-4 h-4" />
-            <span>Code</span>
-          </motion.button>
+          {project.demo_url && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(project.demo_url, '_blank');
+              }}
+              className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Demo</span>
+            </motion.button>
+          )}
+          {project.github_url && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(project.github_url, '_blank');
+              }}
+              className="flex-1 flex items-center justify-center space-x-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <Github className="w-4 h-4" />
+              <span>Code</span>
+            </motion.button>
+          )}
         </div>
       </div>
     </motion.div>
@@ -261,7 +263,7 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
               {/* Project Image */}
               <div className="relative overflow-hidden rounded-xl">
                 <img
-                  src={project.image}
+                  src={project.cover_image_url || '/placeholder.png'}
                   alt={project.name}
                   className="w-full h-64 object-cover"
                 />
@@ -273,7 +275,7 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
                   About this project
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {project.longDescription}
+                  {project.long_description}
                 </p>
               </div>
 
@@ -283,7 +285,7 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
                   Technologies Used
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech) => (
+                  {project.tech_stack?.map((tech) => (
                     <span
                       key={tech}
                       className="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
@@ -295,24 +297,12 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
               </div>
 
               {/* Project Meta */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {project.year}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Year</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {project.team}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Team Size</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                    {project.stars}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Stars</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
                   <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
@@ -324,24 +314,28 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => window.open(project.demo, '_blank')}
-                  className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
-                >
-                  <ExternalLink className="w-5 h-5" />
-                  <span>View Live Demo</span>
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => window.open(project.github, '_blank')}
-                  className="flex-1 flex items-center justify-center space-x-2 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold"
-                >
-                  <Github className="w-5 h-5" />
-                  <span>View Source Code</span>
-                </motion.button>
+                {project.demo_url && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => window.open(project.demo_url, '_blank')}
+                    className="flex-1 flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    <span>View Live Demo</span>
+                  </motion.button>
+                )}
+                {project.github_url && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => window.open(project.github_url, '_blank')}
+                    className="flex-1 flex items-center justify-center space-x-2 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold"
+                  >
+                    <Github className="w-5 h-5" />
+                    <span>View Source Code</span>
+                  </motion.button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -352,6 +346,7 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
 };
 
 export default function Projects() {
+  const { projects, loading } = useProjects();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -359,6 +354,14 @@ export default function Projects() {
     triggerOnce: true,
     threshold: 0.1
   });
+
+  // Generate categories dynamically from projects data
+  const categories = [
+    { id: 'all', label: 'All Projects', count: projects.length },
+    { id: 'web', label: 'Web Apps', count: projects.filter(p => p.category === 'web').length },
+    { id: 'mobile', label: 'Mobile Apps', count: projects.filter(p => p.category === 'mobile').length },
+    { id: 'featured', label: 'Featured', count: projects.filter(p => p.featured).length }
+  ];
 
   const filteredProjects = projects.filter(project => {
     if (selectedCategory === 'all') return true;
@@ -428,20 +431,33 @@ export default function Projects() {
         </motion.div>
 
         {/* Projects Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onClick={handleProjectClick}
-            />
-          ))}
-        </motion.div>
+        {loading ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {[...Array(6)].map((_, index) => (
+              <ProjectCardSkeleton key={index} />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {filteredProjects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onClick={handleProjectClick}
+              />
+            ))}
+          </motion.div>
+        )}
 
         {/* Empty State */}
         {filteredProjects.length === 0 && (

@@ -3,6 +3,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { MapPin, Heart, Coffee, BookOpen, Target, Award } from 'lucide-react';
+import { useAbout } from '../hooks/useAbout';
+import { LoadingSkeleton } from './LoadingSkeleton';
 
 const interests = [
   { name: 'Swimming', icon: '🏊‍♂️', description: 'Competitive swimming and water sports' },
@@ -23,6 +25,7 @@ const funFacts = [
 ];
 
 export default function About() {
+  const { about, loading } = useAbout();
   const [ref, isInView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -69,35 +72,59 @@ export default function About() {
           <div className="space-y-6">
             <div className="text-center">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Michael de Beer
+                {loading ? (
+                  <LoadingSkeleton type="text" lines={1} className="h-8" />
+                ) : (
+                  about?.name || 'Michael de Beer'
+                )}
               </h3>
               <span className="text-blue-600 dark:text-blue-400 font-semibold text-lg">
-                Software Developer
+                {loading ? (
+                  <LoadingSkeleton type="text" lines={1} className="h-6" />
+                ) : (
+                  about?.headline?.split(', ')[0] || 'Software Developer'
+                )}
               </span>
             </div>
 
             <div className="flex items-center justify-center">
               <span className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium">
                 <MapPin className="w-4 h-4" />
-                Centurion, Pretoria, South Africa
+                {loading ? (
+                  <LoadingSkeleton type="text" lines={1} className="h-4 w-32" />
+                ) : (
+                  about?.location || 'Centurion, Pretoria, South Africa'
+                )}
               </span>
             </div>
 
             <div className="space-y-4 text-gray-700 dark:text-gray-300 leading-relaxed">
-              <p>
-                I'm a motivated and detail-oriented final-year BSc Computer Science student 
-                specializing in software engineering, cloud computing, and robust application development.
-              </p>
-              <p>
-                With over 2 years of experience building modern web applications, I've developed 
-                a passion for creating user-focused solutions that solve real-world problems. 
-                I specialize in React, TypeScript, and cloud technologies.
-              </p>
-              <p>
-                When I'm not coding, you'll find me exploring the outdoors, reading tech books, 
-                or watching Formula 1 races. I believe in continuous learning and pushing the 
-                boundaries of what's possible with technology.
-              </p>
+              {loading ? (
+                <LoadingSkeleton type="text" lines={3} />
+              ) : (
+                about?.bio ? (
+                  about.bio.split('\n').map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))
+                ) : (
+                  <>
+                    <p>
+                      I'm a motivated and detail-oriented final-year BSc Computer Science student 
+                      specializing in software engineering, cloud computing, and robust application development.
+                    </p>
+                    <p>
+                      With over 2 years of experience building modern web applications, I've developed 
+                      a passion for creating user-focused solutions that solve real-world problems. 
+                      I specialize in React, TypeScript, and cloud technologies.
+                    </p>
+                    <p>
+                      When I'm not coding, you'll find me exploring the outdoors, reading tech books, 
+                      or watching Formula 1 races. I believe in continuous learning and pushing the 
+                      boundaries of what's possible with technology.
+                    </p>
+                  </>
+                )
+              )}
             </div>
           </div>
         </motion.div>

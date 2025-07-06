@@ -3,12 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Mail, Send, CheckCircle, AlertCircle, User, MessageSquare } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabaseQueries } from '../utils/supabaseClient';
 
 export default function ContactForm() {
   const [form, setForm] = useState({ 
@@ -82,20 +77,12 @@ export default function ContactForm() {
     setSubmitStatus(null);
 
     try {
-      const { error } = await supabase
-        .from('contact_messages')
-        .insert([{
-          name: form.name.trim(),
-          email: form.email.trim(),
-          subject: form.subject.trim(),
-          message: form.message.trim(),
-          created_at: new Date().toISOString()
-        }]);
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw new Error('Failed to send message. Please try again.');
-      }
+      await supabaseQueries.submitContactMessage({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        message: form.message.trim()
+      });
 
       setSubmitStatus('success');
       setForm({ name: '', email: '', subject: '', message: '' });

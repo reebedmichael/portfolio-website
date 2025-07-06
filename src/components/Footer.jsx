@@ -1,8 +1,11 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { Github, Linkedin, Mail, Heart, ArrowUp } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 export default function Footer() {
+  const { siteSettings, loading } = useSiteSettings();
+  
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -12,19 +15,19 @@ export default function Footer() {
   const socialLinks = [
     {
       name: 'GitHub',
-      href: 'https://github.com/michaeldebeer',
+      href: siteSettings?.github_link || 'https://github.com/michaeldebeer',
       icon: Github,
       color: 'hover:text-gray-900 dark:hover:text-white'
     },
     {
       name: 'LinkedIn',
-      href: 'https://linkedin.com/in/michaeldebeer',
+      href: siteSettings?.linkedin_link || 'https://linkedin.com/in/michaeldebeer',
       icon: Linkedin,
       color: 'hover:text-blue-600 dark:hover:text-blue-400'
     },
     {
       name: 'Email',
-      href: 'mailto:michael@example.com',
+      href: `mailto:${siteSettings?.email_address || 'michael@example.com'}`,
       icon: Mail,
       color: 'hover:text-red-600 dark:hover:text-red-400'
     }
@@ -134,7 +137,7 @@ export default function Footer() {
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-gray-400" />
                 <span className="text-gray-600 dark:text-gray-400 text-sm">
-                  michael@example.com
+                  {siteSettings?.email_address || 'michael@example.com'}
                 </span>
               </div>
               <div className="flex items-center space-x-3">

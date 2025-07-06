@@ -12,6 +12,8 @@ import {
   Cloud as CloudIcon,
   Smartphone as MobileIcon
 } from 'lucide-react';
+import { useSkills } from '../hooks/useSkills';
+import { SkillCardSkeleton } from './LoadingSkeleton';
 
 // Custom Python icon component
 const PythonIcon = ({ className }) => (
@@ -49,82 +51,61 @@ const TypeScriptIcon = ({ className }) => (
   </svg>
 );
 
-const skillCategories = [
-  {
-    title: 'Frontend Development',
-    icon: Code,
-    color: 'from-blue-500 to-cyan-500',
-    skills: [
-      { name: 'React', level: 90, icon: ReactIcon },
-      { name: 'TypeScript', level: 85, icon: TypeScriptIcon },
-      { name: 'JavaScript', level: 95, icon: Code },
-      { name: 'HTML/CSS', level: 90, icon: Code },
-      { name: 'Tailwind CSS', level: 88, icon: Code },
-    ]
-  },
-  {
-    title: 'Backend & Database',
-    icon: Database,
-    color: 'from-green-500 to-emerald-500',
-    skills: [
-      { name: 'Python', level: 85, icon: PythonIcon },
-      { name: 'SQL', level: 80, icon: DatabaseIcon },
-      { name: 'Supabase', level: 88, icon: DatabaseIcon },
-      { name: 'Firebase', level: 82, icon: DatabaseIcon },
-      { name: 'Node.js', level: 75, icon: Code },
-    ]
-  },
-  {
-    title: 'Cloud & DevOps',
-    icon: Cloud,
-    color: 'from-purple-500 to-pink-500',
-    skills: [
-      { name: 'Google Cloud', level: 78, icon: CloudIcon },
-      { name: 'Docker', level: 70, icon: CloudIcon },
-      { name: 'Git/GitHub', level: 90, icon: CloudIcon },
-      { name: 'CI/CD', level: 75, icon: CloudIcon },
-      { name: 'AWS', level: 65, icon: CloudIcon },
-    ]
-  },
-  {
-    title: 'Mobile & Cross-Platform',
-    icon: Smartphone,
-    color: 'from-orange-500 to-red-500',
-    skills: [
-      { name: 'Flutter', level: 80, icon: MobileIcon },
-      { name: 'React Native', level: 75, icon: MobileIcon },
-      { name: 'Dart', level: 78, icon: Code },
-      { name: 'Mobile UI/UX', level: 82, icon: MobileIcon },
-      { name: 'PWA', level: 70, icon: Globe },
-    ]
-  }
-];
+// Helper function to get icon component based on skill name
+const getSkillIcon = (skillName) => {
+  const lowerName = skillName.toLowerCase();
+  if (lowerName.includes('react')) return ReactIcon;
+  if (lowerName.includes('typescript')) return TypeScriptIcon;
+  if (lowerName.includes('python')) return PythonIcon;
+  if (lowerName.includes('sql') || lowerName.includes('database') || lowerName.includes('supabase') || lowerName.includes('firebase')) return DatabaseIcon;
+  if (lowerName.includes('cloud') || lowerName.includes('aws') || lowerName.includes('docker') || lowerName.includes('git')) return CloudIcon;
+  if (lowerName.includes('mobile') || lowerName.includes('flutter') || lowerName.includes('native')) return MobileIcon;
+  return Code;
+};
 
-const SkillBar = ({ skill, isInView }) => (
-  <div className="mb-6">
-    <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center space-x-2">
-        <skill.icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-        <span className="font-medium text-gray-700 dark:text-gray-300">{skill.name}</span>
+// Helper function to get category icon and color
+const getCategoryConfig = (category) => {
+  const configs = {
+    'Frontend Development': { icon: Code, color: 'from-blue-500 to-cyan-500' },
+    'Backend & Database': { icon: Database, color: 'from-green-500 to-emerald-500' },
+    'Cloud & DevOps': { icon: Cloud, color: 'from-purple-500 to-pink-500' },
+    'Mobile & Cross-Platform': { icon: Smartphone, color: 'from-orange-500 to-red-500' }
+  };
+  return configs[category] || { icon: Code, color: 'from-gray-500 to-gray-600' };
+};
+
+const SkillBar = ({ skill, isInView }) => {
+  const IconComponent = getSkillIcon(skill.name);
+  
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <IconComponent className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          <span className="font-medium text-gray-700 dark:text-gray-300">{skill.name}</span>
+        </div>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{skill.proficiency}%</span>
       </div>
-      <span className="text-sm text-gray-500 dark:text-gray-400">{skill.level}%</span>
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <motion.div
+          className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
+          initial={{ width: 0 }}
+          animate={isInView ? { width: `${skill.proficiency}%` } : { width: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        />
+      </div>
     </div>
-    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-      <motion.div
-        className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
-        initial={{ width: 0 }}
-        animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
-        transition={{ duration: 1, delay: 0.2 }}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
-const SkillCard = ({ category, index }) => {
+const SkillCard = ({ category, skills, index }) => {
   const [ref, isInView] = useInView({
     triggerOnce: true,
     threshold: 0.1
   });
+
+  const config = getCategoryConfig(category);
+  const IconComponent = config.icon;
 
   return (
     <motion.div
@@ -136,18 +117,18 @@ const SkillCard = ({ category, index }) => {
       className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300"
     >
       <div className="flex items-center space-x-3 mb-6">
-        <div className={`p-3 rounded-xl bg-gradient-to-r ${category.color}`}>
-          <category.icon className="w-6 h-6 text-white" />
+        <div className={`p-3 rounded-xl bg-gradient-to-r ${config.color}`}>
+          <IconComponent className="w-6 h-6 text-white" />
         </div>
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-          {category.title}
+          {category}
         </h3>
       </div>
       
       <div className="space-y-4">
-        {category.skills.map((skill) => (
+        {skills.map((skill) => (
           <SkillBar 
-            key={skill.name} 
+            key={skill.id} 
             skill={skill} 
             isInView={isInView}
           />
@@ -158,6 +139,7 @@ const SkillCard = ({ category, index }) => {
 };
 
 export default function Skills() {
+  const { skills, loading } = useSkills();
   const [ref, isInView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -193,15 +175,24 @@ export default function Skills() {
         </motion.div>
 
         {/* Skills Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {skillCategories.map((category, index) => (
-            <SkillCard 
-              key={category.title} 
-              category={category} 
-              index={index}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid md:grid-cols-2 gap-8">
+            {[...Array(4)].map((_, index) => (
+              <SkillCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8">
+            {Object.entries(skills).map(([category, categorySkills], index) => (
+              <SkillCard 
+                key={category} 
+                category={category} 
+                skills={categorySkills}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Additional Skills */}
         <motion.div

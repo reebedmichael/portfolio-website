@@ -155,12 +155,12 @@ Technologies: ${entry.technologies.join(', ')}`;
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-focus input
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
+  // Auto-focus input (disabled to prevent page scroll)
+  // useEffect(() => {
+  //   if (inputRef.current) {
+  //     inputRef.current.focus();
+  //   }
+  // }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {

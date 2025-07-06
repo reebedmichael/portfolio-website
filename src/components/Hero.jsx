@@ -2,24 +2,32 @@ import { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { ChevronDown, Download, Mail, Github, Linkedin } from 'lucide-react';
-
-const roles = [
-  'Software Developer',
-  'React Specialist',
-  'Full-Stack Engineer',
-  'Problem Solver',
-  'Tech Enthusiast'
-];
+import { useAbout } from '../hooks/useAbout';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { LoadingSkeleton } from './LoadingSkeleton';
 
 export default function Hero() {
+  const { about, loading: aboutLoading } = useAbout();
+  const { siteSettings, loading: settingsLoading } = useSiteSettings();
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
 
+  // Parse roles from about data or use fallback
+  const roles = about?.headline ? about.headline.split(', ') : [
+    'Software Developer',
+    'React Specialist',
+    'Full-Stack Engineer',
+    'Problem Solver',
+    'Tech Enthusiast'
+  ];
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    if (roles.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [roles.length]);
 
   const scrollToNext = () => {
     const aboutSection = document.querySelector('#about');
@@ -85,7 +93,11 @@ export default function Hero() {
             className="text-5xl md:text-7xl font-bold leading-tight"
           >
             <span className="bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-              Michael de Beer
+              {aboutLoading ? (
+                <LoadingSkeleton type="text" lines={1} className="h-16" />
+              ) : (
+                about?.name || 'Michael de Beer'
+              )}
             </span>
           </motion.h1>
 
@@ -108,8 +120,11 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
           >
-            Passionate software developer with 2+ years of experience building modern web applications. 
-            Specialized in React, TypeScript, and cloud technologies. Let's create something amazing together.
+            {aboutLoading ? (
+              <LoadingSkeleton type="text" lines={2} />
+            ) : (
+              about?.summary || 'Passionate software developer with 2+ years of experience building modern web applications. Specialized in React, TypeScript, and cloud technologies. Let\'s create something amazing together.'
+            )}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -145,23 +160,30 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 1 }}
             className="flex justify-center space-x-6 pt-4"
           >
-            {[
-              { icon: Github, href: 'https://github.com', label: 'GitHub' },
-              { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-            ].map((social) => (
-              <motion.a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.1, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-                aria-label={social.label}
-              >
-                <social.icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-              </motion.a>
-            ))}
+            {settingsLoading ? (
+              <>
+                <LoadingSkeleton type="button" className="w-12 h-12 rounded-xl" />
+                <LoadingSkeleton type="button" className="w-12 h-12 rounded-xl" />
+              </>
+            ) : (
+              [
+                { icon: Github, href: siteSettings?.github_link || 'https://github.com', label: 'GitHub' },
+                { icon: Linkedin, href: siteSettings?.linkedin_link || 'https://linkedin.com', label: 'LinkedIn' },
+              ].map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                </motion.a>
+              ))
+            )}
           </motion.div>
         </motion.div>
 

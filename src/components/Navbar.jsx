@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle';
 const navItems = [
   { href: '#home', label: 'Home' },
   { href: '#about', label: 'About' },
+  { href: '#flutterflow-highlight', label: 'FlutterFlow' },
   { href: '#skills', label: 'Skills' },
   { href: '#projects', label: 'Projects' },
   { href: '#experience', label: 'Experience' },
@@ -46,9 +47,13 @@ export default function Navbar({ dark, setDark }) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <motion.div
+          <motion.button
+            onClick={() => {
+              window.location.hash = '';
+              window.scrollTo(0, 0);
+            }}
             whileHover={{ scale: 1.05 }}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 cursor-pointer"
           >
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">M</span>
@@ -56,7 +61,7 @@ export default function Navbar({ dark, setDark }) {
             <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
               Michael de Beer
             </span>
-          </motion.div>
+          </motion.button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">

@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Calendar, MapPin, ExternalLink, GraduationCap, Briefcase } from 'lucide-react';
+import { useExperience } from '../hooks/useExperience';
+import { LoadingSkeleton } from './LoadingSkeleton';
 
 const experiences = [
   {
@@ -41,6 +43,19 @@ const experiences = [
 
 const TimelineItem = ({ experience, index, isInView }) => {
   const isEven = index % 2 === 0;
+  
+  // Helper function to get icon and color based on experience type
+  const getExperienceConfig = (type) => {
+    const configs = {
+      'education': { icon: GraduationCap, color: 'from-blue-500 to-cyan-500' },
+      'work': { icon: Briefcase, color: 'from-green-500 to-emerald-500' },
+      'freelance': { icon: Briefcase, color: 'from-purple-500 to-pink-500' }
+    };
+    return configs[type] || { icon: Briefcase, color: 'from-gray-500 to-gray-600' };
+  };
+
+  const config = getExperienceConfig(experience.type);
+  const IconComponent = config.icon;
 
   return (
     <motion.div
@@ -56,8 +71,8 @@ const TimelineItem = ({ experience, index, isInView }) => {
       >
         <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
           {/* Badge */}
-          <div className={`inline-flex items-center space-x-2 bg-gradient-to-r ${experience.color} text-white px-3 py-1 rounded-full text-sm font-medium mb-4`}>
-            <experience.icon className="w-4 h-4" />
+          <div className={`inline-flex items-center space-x-2 bg-gradient-to-r ${config.color} text-white px-3 py-1 rounded-full text-sm font-medium mb-4`}>
+            <IconComponent className="w-4 h-4" />
             <span className="capitalize">{experience.type}</span>
           </div>
           
@@ -75,12 +90,14 @@ const TimelineItem = ({ experience, index, isInView }) => {
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center space-x-1">
               <Calendar className="w-4 h-4" />
-              <span>{experience.period}</span>
+              <span>{experience.start_year} - {experience.end_year || 'Present'}</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <MapPin className="w-4 h-4" />
-              <span>{experience.location}</span>
-            </div>
+            {experience.location && (
+              <div className="flex items-center space-x-1">
+                <MapPin className="w-4 h-4" />
+                <span>{experience.location}</span>
+              </div>
+            )}
           </div>
           
           {/* Description */}
@@ -88,17 +105,19 @@ const TimelineItem = ({ experience, index, isInView }) => {
             {experience.description}
           </p>
           
-          {/* Skills */}
-          <div className="flex flex-wrap gap-2">
-            {experience.skills.map((skill) => (
-              <span
-                key={skill}
-                className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
+          {/* Skills - if available */}
+          {experience.skills && experience.skills.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {experience.skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </motion.div>
 
@@ -108,7 +127,7 @@ const TimelineItem = ({ experience, index, isInView }) => {
           initial={{ scale: 0 }}
           animate={isInView ? { scale: 1 } : { scale: 0 }}
           transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
-          className={`w-4 h-4 bg-gradient-to-r ${experience.color} rounded-full shadow-lg`}
+          className={`w-4 h-4 bg-gradient-to-r ${config.color} rounded-full shadow-lg`}
         />
         <div className="absolute top-4 left-2 w-0.5 h-12 bg-gray-300 dark:bg-gray-600" />
       </div>
@@ -120,6 +139,7 @@ const TimelineItem = ({ experience, index, isInView }) => {
 };
 
 export default function Experience() {
+  const { experience, loading } = useExperience();
   const [ref, isInView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -155,22 +175,30 @@ export default function Experience() {
         </motion.div>
 
         {/* Timeline */}
-        <div className="relative">
-          {/* Timeline Line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gray-300 dark:bg-gray-600 hidden md:block" />
-          
-          {/* Timeline Items */}
+        {loading ? (
           <div className="space-y-8">
-            {experiences.map((experience, index) => (
-              <TimelineItem
-                key={`${experience.type}-${index}`}
-                experience={experience}
-                index={index}
-                isInView={isInView}
-              />
+            {[...Array(3)].map((_, index) => (
+              <LoadingSkeleton key={index} type="card" />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="relative">
+            {/* Timeline Line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gray-300 dark:bg-gray-600 hidden md:block" />
+            
+            {/* Timeline Items */}
+            <div className="space-y-8">
+              {experience.map((exp, index) => (
+                <TimelineItem
+                  key={exp.id}
+                  experience={exp}
+                  index={index}
+                  isInView={isInView}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Call to Action */}
         <motion.div
