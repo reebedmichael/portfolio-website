@@ -1,4 +1,94 @@
-# 🚀 Deployment Guide - Portfolio Website
+# 🚀 Deployment Guide: Supabase + Vite + Netlify
+
+This guide ensures your environment variables and deployment are always correct.
+
+---
+
+## 1️⃣ Supabase Client Setup
+
+- In `src/utils/supabaseClient.js`:
+  ```js
+  import { createClient } from '@supabase/supabase-js';
+
+  export const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
+  );
+  ```
+
+---
+
+## 2️⃣ Environment Variables
+
+- **.env.example** (included in repo):
+  ```
+  VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+  VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+  ```
+- **.env** (not committed):
+  - Copy `.env.example` to `.env`
+  - Fill in your real Supabase values
+
+---
+
+## 3️⃣ .gitignore
+
+- Ensure `.env` and `.env.*` are ignored, but `.env.example` is tracked.
+
+---
+
+## 4️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 5️⃣ Build Locally
+
+```bash
+npm run build
+```
+- ✅ Should succeed if `.env` is correct.
+- ❌ Will fail if `.env` is missing or empty (expected).
+
+---
+
+## 6️⃣ Netlify Environment Variables
+
+- In Netlify **Site Settings → Environment Variables**, add:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+- Use the same values as your local `.env`.
+
+---
+
+## 7️⃣ Commit & Deploy
+
+```bash
+git add .env.example
+git commit -m "Add: .env.example for safe config"
+git push origin main
+```
+- Trigger a fresh deploy in Netlify.
+
+---
+
+## 8️⃣ Verify After Deploy
+
+- In your deployed site's DevTools, run:
+  ```js
+  console.log(import.meta.env.VITE_SUPABASE_URL);
+  ```
+  - ✅ Should show your real URL.
+  - ❌ If `undefined`, fix Netlify env vars and redeploy.
+
+---
+
+**That's it! Your Supabase environment is now bulletproof for local and Netlify deploys.**
+
+# �� Deployment Guide - Portfolio Website
 
 ## ✅ Pre-Deployment Security Checklist
 
