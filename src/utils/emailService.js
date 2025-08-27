@@ -1,13 +1,29 @@
 import emailjs from '@emailjs/browser';
-import { EMAILJS_CONFIG } from '../config/emailjs';
+
+// EmailJS configuration using environment variables or defaults
+const EMAILJS_CONFIG = {
+  SERVICE_ID: import.meta.env.VITE_EMAILJS_SERVICE_ID || '',
+  TEMPLATE_ID: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '',
+  USER_ID: import.meta.env.VITE_EMAILJS_USER_ID || ''
+};
 
 // Initialize EmailJS
 export const initEmailJS = () => {
-  emailjs.init(EMAILJS_CONFIG.USER_ID);
+  if (EMAILJS_CONFIG.USER_ID) {
+    emailjs.init(EMAILJS_CONFIG.USER_ID);
+  } else {
+    console.warn('EmailJS not configured. Skipping initialization.');
+  }
 };
 
 // Send email notification using EmailJS
 export const sendEmailNotification = async (messageData) => {
+  // Check if EmailJS is properly configured
+  if (!EMAILJS_CONFIG.SERVICE_ID || !EMAILJS_CONFIG.TEMPLATE_ID || !EMAILJS_CONFIG.USER_ID) {
+    console.warn('EmailJS not configured. Skipping email notification.');
+    return { success: false, message: 'EmailJS not configured' };
+  }
+
   try {
     const templateParams = {
       to_email: 'your-email@gmail.com', // Replace with your email

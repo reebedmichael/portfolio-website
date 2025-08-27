@@ -3,19 +3,17 @@
 ## ✅ **SECURITY FIXES COMPLETED:**
 
 ### 1. **Sensitive Data Removed:**
-- ❌ **EmailJS credentials** moved to `src/config/emailjs.js` (now in .gitignore)
+- ❌ **EmailJS credentials** moved to environment variables
 - ❌ **Personal email** replaced with placeholder `your-email@gmail.com`
 - ❌ **Build files** removed from repository (`dist/` folder deleted)
 
 ### 2. **Configuration Templates Created:**
-- ✅ `src/config/emailjs.example.js` - Template for EmailJS configuration
-- ✅ `.env.example` - Template for environment variables
+- ✅ `.env.example` - Template for environment variables (includes EmailJS)
 - ✅ `SETUP.md` - Complete setup instructions
 
 ### 3. **Updated .gitignore:**
-- ✅ Added `src/config/emailjs.js` to prevent credential commits
-- ✅ Ensured `dist/` folder is ignored
 - ✅ Environment files properly configured
+- ✅ Ensured `dist/` folder is ignored
 
 ### 4. **Placeholder Data Implemented:**
 - ✅ All personal emails replaced with `your-email@gmail.com`
@@ -26,13 +24,9 @@
 
 ### 1. **Create Local Configuration Files:**
 ```bash
-# Copy and configure EmailJS
-cp src/config/emailjs.example.js src/config/emailjs.js
-# Edit src/config/emailjs.js with your actual credentials
-
 # Copy and configure environment
 cp .env.example .env
-# Edit .env with your actual Supabase credentials
+# Edit .env with your actual Supabase and EmailJS credentials
 ```
 
 ### 2. **Update Personal Information:**
@@ -43,7 +37,6 @@ cp .env.example .env
 
 ### 3. **Verify .gitignore:**
 Make sure these files are NOT committed:
-- `src/config/emailjs.js` ❌
 - `.env` ❌
 - `dist/` folder ❌
 

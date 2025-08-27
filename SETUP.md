@@ -31,21 +31,20 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ### 3. EmailJS Configuration
 
-Copy the EmailJS configuration template:
+EmailJS credentials are now configured through environment variables. Add your EmailJS credentials to your `.env` file:
 
 ```bash
-cp src/config/emailjs.example.js src/config/emailjs.js
+# EmailJS Configuration
+VITE_EMAILJS_SERVICE_ID=your-service-id-here
+VITE_EMAILJS_TEMPLATE_ID=your-template-id-here
+VITE_EMAILJS_USER_ID=your-user-id-here
 ```
 
-Edit `src/config/emailjs.js` with your actual EmailJS credentials:
-
-```javascript
-export const EMAILJS_CONFIG = {
-  SERVICE_ID: 'your_service_id_here',
-  TEMPLATE_ID: 'your_template_id_here', 
-  USER_ID: 'your_user_id_here',
-};
-```
+To get these values:
+1. Go to https://emailjs.com and sign up/login
+2. Add Gmail as an email service and get SERVICE_ID
+3. Create an email template and get TEMPLATE_ID
+4. Go to Account → API Keys and get USER_ID
 
 ### 4. Database Setup
 
