@@ -26,7 +26,7 @@ export const sendEmailNotification = async (messageData) => {
 
   try {
     const templateParams = {
-      to_email: 'your-email@gmail.com', // Replace with your email
+      to_email: 'debeermichael17@gmail.com', // Your actual email
       from_name: messageData.name,
       from_email: messageData.email,
       subject: messageData.subject,
@@ -54,7 +54,7 @@ export const sendEmailNotification = async (messageData) => {
 export const sendEmailWithCustomEndpoint = async (messageData) => {
   try {
     const emailData = {
-      to_email: 'your-email@gmail.com', // Replace with your email
+      to_email: 'debeermichael17@gmail.com', // Your actual email
       from_name: messageData.name,
       from_email: messageData.email,
       subject: messageData.subject,
