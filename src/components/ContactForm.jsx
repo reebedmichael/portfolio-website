@@ -1,9 +1,7 @@
-import { useState } from 'react';
-// eslint-disable-next-line no-unused-vars
-import { motion, AnimatePresence } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { useState, useEffect } from 'react';
 import { Mail, Send, CheckCircle, AlertCircle, User, MessageSquare } from 'lucide-react';
 import { supabaseQueries } from '../utils/supabaseClient';
+import { initEmailJS, sendEmailNotification } from '../utils/emailService';
 
 export default function ContactForm() {
   const [form, setForm] = useState({ 
@@ -15,10 +13,11 @@ export default function ContactForm() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // 'success' | 'error' | null
-  const [ref, isInView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1
-  });
+
+  // Initialize EmailJS on component mount
+  useEffect(() => {
+    initEmailJS();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -77,7 +76,16 @@ export default function ContactForm() {
     setSubmitStatus(null);
 
     try {
+      // Save to Supabase database
       await supabaseQueries.submitContactMessage({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        message: form.message.trim()
+      });
+
+      // Send email notification to Gmail
+      await sendEmailNotification({
         name: form.name.trim(),
         email: form.email.trim(),
         subject: form.subject.trim(),
@@ -110,79 +118,15 @@ export default function ContactForm() {
     }
   };
 
-  // eslint-disable-next-line no-unused-vars
-  const InputField = ({ name, label, type = 'text', placeholder, icon: Icon, multiline = false }) => (
-    <div className="space-y-2">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        {label}
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Icon className="h-5 w-5 text-gray-400" />
-        </div>
-        {multiline ? (
-          <textarea
-            id={name}
-            name={name}
-            value={form[name]}
-            onChange={handleChange}
-            placeholder={placeholder}
-            rows={4}
-            className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-              errors[name] 
-                ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
-                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
-            }`}
-          />
-        ) : (
-          <input
-            id={name}
-            name={name}
-            type={type}
-            value={form[name]}
-            onChange={handleChange}
-            placeholder={placeholder}
-            className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-              errors[name] 
-                ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
-                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
-            }`}
-          />
-        )}
-      </div>
-      {errors[name] && (
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-sm text-red-600 dark:text-red-400 flex items-center space-x-1"
-        >
-          <AlertCircle className="w-4 h-4" />
-          <span>{errors[name]}</span>
-        </motion.p>
-      )}
-    </div>
-  );
-
   return (
     <section id="contact" className="py-20 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center space-x-2 bg-blue-100 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-4"
-          >
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center space-x-2 bg-blue-100 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
             <Mail className="w-4 h-4" />
             <span>Get In Touch</span>
-          </motion.div>
+          </div>
           
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             Let's Work Together
@@ -190,16 +134,11 @@ export default function ContactForm() {
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Have a project in mind? I'd love to hear about it. Let's make something great together.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="space-y-8"
-          >
+          <div className="space-y-8">
             <div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Let's start a conversation
@@ -217,7 +156,7 @@ export default function ContactForm() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 dark:text-white">Email</h4>
-                  <p className="text-gray-600 dark:text-gray-400">michael@example.com</p>
+                  <p className="text-gray-600 dark:text-gray-400">your-email@gmail.com</p>
                 </div>
               </div>
 
@@ -231,83 +170,160 @@ export default function ContactForm() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
+          <div>
             <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-gray-200 dark:border-gray-700">
               {/* Success/Error Messages */}
-              <AnimatePresence>
-                {submitStatus === 'success' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="mb-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 rounded-xl flex items-center space-x-3"
-                  >
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span className="text-green-800 dark:text-green-200 font-medium">
-                      Message sent successfully! I'll get back to you soon.
-                    </span>
-                  </motion.div>
-                )}
+              {submitStatus === 'success' && (
+                <div className="mb-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 rounded-xl flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <span className="text-green-800 dark:text-green-200 font-medium">
+                    Message sent successfully! I'll get back to you soon.
+                  </span>
+                </div>
+              )}
 
-                {submitStatus === 'error' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 rounded-xl flex items-center space-x-3"
-                  >
-                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    <span className="text-red-800 dark:text-red-200 font-medium">
-                      Failed to send message. Please try again or contact me directly.
-                    </span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {submitStatus === 'error' && (
+                <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 rounded-xl flex items-center space-x-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  <span className="text-red-800 dark:text-red-200 font-medium">
+                    Failed to send message. Please try again or contact me directly.
+                  </span>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <InputField
-                    name="name"
-                    label="Name"
-                    placeholder="Your full name"
-                    icon={User}
-                  />
-                  <InputField
-                    name="email"
-                    label="Email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    icon={Mail}
-                  />
+                  {/* Name Field */}
+                  <div className="space-y-2">
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Name
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <User className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={form.name}
+                        onChange={handleChange}
+                        placeholder="Your full name"
+                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                          errors.name 
+                            ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
+                            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+                        }`}
+                      />
+                    </div>
+                    {errors.name && (
+                      <div className="text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{errors.name}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Mail className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="your.email@example.com"
+                        className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                          errors.email 
+                            ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
+                            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+                        }`}
+                      />
+                    </div>
+                    {errors.email && (
+                      <div className="text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{errors.email}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <InputField
-                  name="subject"
-                  label="Subject"
-                  placeholder="What's this about?"
-                  icon={MessageSquare}
-                />
+                {/* Subject Field */}
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Subject
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <MessageSquare className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="subject"
+                      name="subject"
+                      type="text"
+                      value={form.subject}
+                      onChange={handleChange}
+                      placeholder="What's this about?"
+                      className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                        errors.subject 
+                          ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+                      }`}
+                    />
+                  </div>
+                  {errors.subject && (
+                    <div className="text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>{errors.subject}</span>
+                    </div>
+                  )}
+                </div>
 
-                <InputField
-                  name="message"
-                  label="Message"
-                  placeholder="Tell me about your project..."
-                  icon={MessageSquare}
-                  multiline
-                />
+                {/* Message Field */}
+                <div className="space-y-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Message
+                  </label>
+                  <div className="relative">
+                    <div className="absolute top-3 left-3 flex items-center pointer-events-none">
+                      <MessageSquare className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={form.message}
+                      onChange={handleChange}
+                      placeholder="Tell me about your project..."
+                      rows={4}
+                      className={`block w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                        errors.message 
+                          ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600' 
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+                      }`}
+                    />
+                  </div>
+                  {errors.message && (
+                    <div className="text-sm text-red-600 dark:text-red-400 flex items-center space-x-1">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>{errors.message}</span>
+                    </div>
+                  )}
+                </div>
 
-                <motion.button
+                <button
                   type="submit"
                   disabled={isSubmitting}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   {isSubmitting ? (
@@ -321,10 +337,10 @@ export default function ContactForm() {
                       <span>Send Message</span>
                     </>
                   )}
-                </motion.button>
+                </button>
               </form>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

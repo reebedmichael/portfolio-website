@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { MapPin, Heart, Coffee, BookOpen, Target, Award } from 'lucide-react';
 import { useAbout } from '../hooks/useAbout';
 import { LoadingSkeleton } from './LoadingSkeleton';
+import ProfilePhoto from './ProfilePhoto';
 
 const interests = [
   { name: 'Swimming', icon: '🏊‍♂️', description: 'Competitive swimming and water sports' },
@@ -70,6 +71,19 @@ export default function About() {
           className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300"
         >
           <div className="space-y-6">
+            {/* Profile Photo */}
+            <div className="flex justify-center">
+              {loading ? (
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              ) : (
+                <ProfilePhoto
+                  photoUrl={about?.photo_url}
+                  name={about?.name}
+                  size="lg"
+                />
+              )}
+            </div>
+            
             <div className="text-center">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {loading ? (

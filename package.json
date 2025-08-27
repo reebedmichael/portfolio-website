@@ -12,6 +12,7 @@
     "lighthouse": "lighthouse http://localhost:5173 --only-categories=performance,accessibility,best-practices --emulated-form-factor=mobile --view"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@react-three/drei": "^10.3.0",
     "@react-three/fiber": "^9.1.2",
     "@supabase/supabase-js": "^2.50.3",

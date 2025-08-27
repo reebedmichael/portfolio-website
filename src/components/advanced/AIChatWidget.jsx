@@ -27,6 +27,16 @@ const AIChatWidget = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Listen for custom event to open the widget
+  useEffect(() => {
+    const handleOpenEvent = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('openAIChat', handleOpenEvent);
+    return () => window.removeEventListener('openAIChat', handleOpenEvent);
+  }, []);
+
   // AI Response Generator (simulated)
   const generateAIResponse = async (userMessage) => {
     setIsTyping(true);
@@ -93,10 +103,10 @@ const AIChatWidget = () => {
 
   return (
     <>
-      {/* Floating Chat Button */}
+      {/* Floating Chat Button - Hidden on mobile */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+        className={`fixed top-6 right-6 z-50 p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hidden ${
           isOpen ? 'hidden' : 'block'
         }`}
         whileHover={{ scale: 1.1 }}
@@ -112,7 +122,7 @@ const AIChatWidget = () => {
             initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 50 }}
-            className="fixed bottom-6 right-6 z-50 w-96 h-[500px] bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
+            className="fixed top-6 right-6 z-50 w-96 h-[500px] bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 flex items-center justify-between">

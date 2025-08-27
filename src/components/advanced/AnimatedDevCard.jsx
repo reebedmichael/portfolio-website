@@ -3,8 +3,10 @@ import { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Download, QrCode, Mail, Phone, MapPin, Globe, Github, Linkedin, X } from 'lucide-react';
 import QRCode from 'react-qr-code';
+import { useDevCard } from '../../hooks/useDevCard';
 
 const AnimatedDevCard = () => {
+  const { devCard, loading } = useDevCard();
   const [isOpen, setIsOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const cardRef = useRef(null);
@@ -36,40 +38,45 @@ const AnimatedDevCard = () => {
   };
 
   const generateVCard = () => {
+    if (!devCard) return;
+    
     const vCard = `BEGIN:VCARD
 VERSION:3.0
-FN:Michael de Beer
-ORG:Full-Stack Developer
-TITLE:Senior Software Engineer
-EMAIL:michael@example.com
-TEL:+1-555-0123
-URL:https://michaeldebeer.dev
-URL:https://github.com/michaeldebeer
-URL:https://linkedin.com/in/michaeldebeer
-ADR:;;San Francisco;CA;;;USA
-NOTE:Passionate about creating innovative web solutions
+FN:${devCard.name}
+ORG:${devCard.title}
+TITLE:${devCard.title}
+EMAIL:${devCard.email}
+TEL:${devCard.phone || ''}
+URL:https://${devCard.website || ''}
+URL:https://${devCard.github || ''}
+URL:https://${devCard.linkedin || ''}
+ADR:;;${devCard.location || ''}
+NOTE:${devCard.note || ''}
 END:VCARD`;
 
     const blob = new Blob([vCard], { type: 'text/vcard' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'michael-debeer.vcf';
+    link.download = `${devCard.name.toLowerCase().replace(/\s+/g, '-')}.vcf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
+  // Use data from Supabase or fallback to default values
   const contactInfo = {
-    name: 'Michael de Beer',
-    title: 'Senior Full-Stack Developer',
-    email: 'michael@example.com',
-    phone: '+1 (555) 012-3456',
-    location: 'San Francisco, CA',
-    website: 'michaeldebeer.dev',
-    github: 'github.com/michaeldebeer',
-    linkedin: 'linkedin.com/in/michaeldebeer'
+    name: devCard?.name || 'Michael de Beer',
+    title: devCard?.title || 'Senior Full-Stack Developer',
+    email: devCard?.email || 'michael@example.com',
+    phone: devCard?.phone || '+1 (555) 012-3456',
+    location: devCard?.location || 'San Francisco, CA',
+    website: devCard?.website || 'michaeldebeer.dev',
+    github: devCard?.github || 'github.com/michaeldebeer',
+    linkedin: devCard?.linkedin || 'linkedin.com/in/michaeldebeer',
+    initials: devCard?.initials || 'MD',
+    note: devCard?.note || 'Passionate about creating innovative web solutions'
   };
 
   return (
@@ -77,11 +84,12 @@ END:VCARD`;
       {/* Floating Card Button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed top-6 right-6 z-50 p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+        className={`fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
           isOpen ? 'hidden' : 'block'
         }`}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
+        disabled={loading}
       >
         <Globe size={24} />
       </motion.button>
@@ -131,7 +139,7 @@ END:VCARD`;
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold text-purple-600"
               >
-                MD
+                {contactInfo.initials}
               </motion.div>
               <h2 className="text-2xl font-bold mb-1">{contactInfo.name}</h2>
               <p className="text-purple-100">{contactInfo.title}</p>

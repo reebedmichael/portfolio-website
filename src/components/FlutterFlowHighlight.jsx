@@ -77,9 +77,9 @@ const FlutterFlowHighlight = () => {
                     alt={project.name}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  {project.featured && (
-                    <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      Featured
+                  {project.type && (
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      {project.type}
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -113,22 +113,11 @@ const FlutterFlowHighlight = () => {
                     )}
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex space-x-3 pt-2">
-                    {project.demo_url && (
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(project.demo_url, '_blank');
-                        }}
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                      >
-                        <ExternalLink size={16} />
-                        <span>Live Demo</span>
-                      </motion.button>
-                    )}
+                  {/* Project Description */}
+                  <div className="pt-2">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">
+                      {project.long_description || project.description}
+                    </p>
                   </div>
                 </div>
               </motion.div>

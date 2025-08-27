@@ -13,6 +13,8 @@ import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
 import ParticleBackground from './components/ParticleBackground';
 import { useSiteSettings } from './hooks/useSiteSettings';
+import { useAbout } from './hooks/useAbout';
+import { useFavicon } from './hooks/useFavicon';
 
 // Advanced Components
 import AIChatWidget from './components/advanced/AIChatWidget';
@@ -23,9 +25,11 @@ import AnimatedDevCard from './components/advanced/AnimatedDevCard';
 import CodeChallengeGame from './components/games/CodeChallengeGame';
 import VoiceInteraction from './components/advanced/VoiceInteraction';
 import EnhancedParticleBackground from './components/advanced/EnhancedParticleBackground';
+import FloatingActionButtons from './components/FloatingActionButtons';
 
 export default function App() {
   const { siteSettings } = useSiteSettings();
+  const { about } = useAbout();
   const [dark, setDark] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedFeatures, setShowAdvancedFeatures] = useState(false);
@@ -77,6 +81,9 @@ export default function App() {
       document.title = siteSettings.site_title;
     }
   }, [siteSettings]);
+
+  // Update favicon with profile photo
+  useFavicon(about?.photo_url);
 
   // Ensure page starts at top when loading
   useEffect(() => {
@@ -218,6 +225,9 @@ export default function App() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Floating Action Buttons Group (Web Only) */}
+      <FloatingActionButtons />
     </div>
   );
 }

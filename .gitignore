@@ -11,10 +11,13 @@ lerna-debug.log*
 node_modules/
 
 # Build output
-/dist/
+dist/
 dist-ssr/
 .cache/
 .vite/
+
+# Production secrets
+src/config/emailjs.js
 
 # Environment files
 .env

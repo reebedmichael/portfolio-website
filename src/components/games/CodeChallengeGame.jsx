@@ -14,6 +14,16 @@ const CodeChallengeGame = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Listen for custom event to open the widget
+  useEffect(() => {
+    const handleOpenEvent = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('openCodeChallenge', handleOpenEvent);
+    return () => window.removeEventListener('openCodeChallenge', handleOpenEvent);
+  }, []);
+
   const challenges = [
     {
       type: 'regex',
@@ -179,10 +189,10 @@ const CodeChallengeGame = () => {
 
   return (
     <>
-      {/* Floating Game Button */}
+      {/* Floating Game Button - Hidden on mobile */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+        className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hidden ${
           isOpen ? 'hidden' : 'block'
         }`}
         whileHover={{ scale: 1.1 }}

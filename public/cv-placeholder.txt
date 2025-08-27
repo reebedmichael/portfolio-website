@@ -1,0 +1,13 @@
+CV Placeholder
+
+This is a placeholder for your CV file. 
+
+To use the CV button:
+
+1. Upload your CV PDF to the public folder and name it 'cv.pdf'
+2. OR add your CV URL to the site_settings table in Supabase:
+   - Go to your Supabase dashboard
+   - Navigate to Table Editor > site_settings
+   - Add your CV URL to the cv_url field
+
+The button will automatically use the CV URL from Supabase if available, otherwise it will fall back to /cv.pdf in the public folder.

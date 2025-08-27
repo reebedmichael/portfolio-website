@@ -12,6 +12,16 @@ const VoiceInteraction = () => {
   const [lastCommand, setLastCommand] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Listen for custom event to open the widget
+  useEffect(() => {
+    const handleOpenEvent = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('openVoiceInteraction', handleOpenEvent);
+    return () => window.removeEventListener('openVoiceInteraction', handleOpenEvent);
+  }, []);
+
   const commands = useMemo(() => ({
     'go to about': () => {
       document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
@@ -165,10 +175,10 @@ const VoiceInteraction = () => {
 
   return (
     <>
-      {/* Floating Voice Button */}
+      {/* Floating Voice Button - Hidden on mobile */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed top-6 left-6 z-50 p-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+        className={`fixed top-6 left-6 z-50 p-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hidden ${
           isOpen ? 'hidden' : 'block'
         }`}
         whileHover={{ scale: 1.1 }}

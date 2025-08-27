@@ -57,12 +57,7 @@ const flutterFlowSkills = [
   }
 ];
 
-const categories = [
-  { id: 'all', label: 'All Projects', count: 0 },
-  { id: 'mobile', label: 'Mobile Apps', count: 0 },
-  { id: 'web', label: 'Web Apps', count: 0 },
-  { id: 'featured', label: 'Featured', count: 0 }
-];
+// Categories will be generated dynamically based on project types
 
 const ProjectCard = ({ project, onClick }) => {
   const [ref, isInView] = useInView({
@@ -87,9 +82,9 @@ const ProjectCard = ({ project, onClick }) => {
           alt={project.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        {project.featured && (
-          <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-            Featured
+        {project.type && (
+          <div className="absolute top-4 left-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+            {project.type}
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -131,42 +126,19 @@ const ProjectCard = ({ project, onClick }) => {
               <span>{project.year}</span>
             </div>
           </div>
-          <div className="flex items-center space-x-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span>{project.featured ? 'Featured' : 'Project'}</span>
-          </div>
+          {project.type && (
+            <div className="flex items-center space-x-1">
+              <Star className="w-4 h-4 fill-blue-400 text-blue-400" />
+              <span>{project.type}</span>
+            </div>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex space-x-3 pt-2">
-          {project.demo_url && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(project.demo_url, '_blank');
-              }}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-            >
-              <ExternalLink size={16} />
-              <span>Live Demo</span>
-            </motion.button>
-          )}
-          {project.github_url && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(project.github_url, '_blank');
-              }}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-            >
-              <Github size={16} />
-              <span>Code</span>
-            </motion.button>
-          )}
+        {/* Project Description */}
+        <div className="pt-2">
+          <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3">
+            {project.long_description || project.description}
+          </p>
         </div>
       </div>
     </motion.div>
@@ -253,43 +225,46 @@ const ProjectModal = ({ project, isOpen, onClose }) => {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Year</div>
               </div>
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {project.featured ? 'Yes' : 'No'}
+              {project.type && (
+                <div className="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {project.type}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Type</div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Featured</div>
-              </div>
+              )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 pt-4">
-              {project.demo_url && (
-                <motion.a
-                  href={project.demo_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <ExternalLink size={18} />
-                  <span>View Live Demo</span>
-                </motion.a>
-              )}
-              {project.github_url && (
-                <motion.a
-                  href={project.github_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <Github size={18} />
-                  <span>View Source Code</span>
-                </motion.a>
-              )}
-            </div>
+                         {/* Project Links - Only show if links exist */}
+             {project.demo_url || project.github_url ? (
+               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                 <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Project Links:</h4>
+                 <div className="flex flex-wrap gap-2">
+                   {project.demo_url && (
+                     <a
+                       href={project.demo_url}
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       className="inline-flex items-center space-x-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors text-sm"
+                     >
+                       <ExternalLink className="w-4 h-4" />
+                       <span>Live Demo</span>
+                     </a>
+                   )}
+                   {project.github_url && (
+                     <a
+                       href={project.github_url}
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
+                     >
+                       <Github className="w-4 h-4" />
+                       <span>Source Code</span>
+                     </a>
+                   )}
+                 </div>
+               </div>
+             ) : null}
           </div>
         </div>
       </motion.div>
@@ -307,20 +282,27 @@ export default function FlutterFlow() {
     threshold: 0.1
   });
 
-  // Update category counts
-  const updatedCategories = categories.map(cat => ({
-    ...cat,
-    count: cat.id === 'all' ? projects.length : 
-           cat.id === 'featured' ? projects.filter(p => p.featured).length :
-           projects.filter(p => p.category === cat.id).length
-  }));
+  // Generate categories dynamically from projects data based on type
+  const getUniqueTypes = () => {
+    const types = projects.map(p => p.type).filter(Boolean);
+    return [...new Set(types)];
+  };
 
-  // Filter projects based on active category
-  const filteredProjects = activeCategory === 'all' 
-    ? projects 
-    : activeCategory === 'featured'
-    ? projects.filter(p => p.featured)
-    : projects.filter(p => p.category === activeCategory);
+  const updatedCategories = [
+    { id: 'all', label: 'All Projects', count: projects.length },
+    ...getUniqueTypes().map(type => ({
+      id: type.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      label: type,
+      count: projects.filter(p => p.type === type).length
+    }))
+  ];
+
+  // Filter projects based on active category using type
+  const filteredProjects = projects.filter(project => {
+    if (activeCategory === 'all') return true;
+    const projectTypeId = project.type?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    return projectTypeId === activeCategory;
+  });
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);

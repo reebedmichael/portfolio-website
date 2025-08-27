@@ -68,7 +68,7 @@ export const supabaseQueries = {
       .from('projects')
       .select('*')
       .order('year', { ascending: false })
-      .order('featured', { ascending: false });
+      .order('type', { ascending: true });
     
     if (error) {
       logError('Error fetching projects data', error);
@@ -149,11 +149,25 @@ export const supabaseQueries = {
       .from('flutterflow_projects')
       .select('*')
       .order('year', { ascending: false })
-      .order('featured', { ascending: false });
+      .order('type', { ascending: true });
     
     if (error) {
       logError('Error fetching FlutterFlow projects data', error);
       return [];
+    }
+    return data;
+  },
+
+  // Dev card data
+  getDevCard: async () => {
+    const { data, error } = await supabase
+      .from('dev_card')
+      .select('*')
+      .single();
+    
+    if (error) {
+      logError('Error fetching dev card data', error);
+      return null;
     }
     return data;
   }

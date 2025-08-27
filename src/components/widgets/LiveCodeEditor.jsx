@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Copy, Download, Code, X } from 'lucide-react';
@@ -7,6 +7,16 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
 const LiveCodeEditor = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentExample, setCurrentExample] = useState(0);
+
+  // Listen for custom event to open the widget
+  useEffect(() => {
+    const handleOpenEvent = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('openCodeEditor', handleOpenEvent);
+    return () => window.removeEventListener('openCodeEditor', handleOpenEvent);
+  }, []);
 
   const codeExamples = [
     {
@@ -163,10 +173,10 @@ render(<TodoList />);`
 
   return (
     <>
-      {/* Floating Code Button */}
+      {/* Floating Code Button - Hidden on mobile */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 left-6 z-50 p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${
+        className={`fixed bottom-6 left-6 z-50 p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hidden ${
           isOpen ? 'hidden' : 'block'
         }`}
         whileHover={{ scale: 1.1 }}
